@@ -491,7 +491,7 @@ handleRedirects page = case lookup "redirect" (pageMeta page) of
                              , urlForPage (pageName page)
                              , "?redirect=yes"
                              ]
-                        lift $ seeOther url' $ withBody $ concat
+                        lift $ seeOther ("http://127.0.0.1:5001" ++ url') $ withBody $ concat
                             [ "<!doctype html><html><head><title>307 Redirect"
                             , "</title></head><body><p>You are being <a href=\""
                             , stringToHtmlString url'
@@ -693,7 +693,7 @@ readerFor :: PageType -> Bool -> String -> Either PandocError Pandoc
 readerFor pt lhs =
   let defExts = getDefaultExtensions $ map toLower $ show pt
       defPS = def{ readerExtensions = defExts
-                                      <> extensionsFromList [Ext_emoji]
+                                      <> extensionsFromList [Ext_emoji, Ext_pipe_tables, Ext_backtick_code_blocks, Ext_intraword_underscores, Ext_strikeout, Ext_lists_without_preceding_blankline]
                                       <> getPageTypeDefaultExtensions pt lhs
                                       <> readerExtensions def }
   in runPure . (case pt of

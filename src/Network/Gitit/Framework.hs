@@ -91,7 +91,7 @@ authenticateUserThat predicate level handler = do
        rq <- askRq
        let url = rqUri rq ++ rqQuery rq
        case mbUser of
-            Nothing   -> tempRedirect ("/_login?" ++ urlEncodeVars [("destination", url)]) $ toResponse ()
+            Nothing   -> tempRedirect ("http://127.0.0.1:5001/_login?" ++ urlEncodeVars [("destination", url)]) $ toResponse ()
             Just u    -> if predicate u
                             then handler
                             else error "Not authorized."

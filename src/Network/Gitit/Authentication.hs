@@ -384,7 +384,7 @@ loginUser params = do
     then do
       key <- newSession (sessionData uname)
       addCookie (MaxAge $ sessionTimeout cfg) (mkCookie "sid" (show key))
-      seeOther (encUrl destination) $ toResponse $ p << ("Welcome, " ++
+      seeOther ("http://127.0.0.1:5001" ++ encUrl destination) $ toResponse $ p << ("Welcome, " ++
         renderHtmlFragment (stringToHtml uname))
     else
       withMessages ["Invalid username or password."] loginUserForm
@@ -400,7 +400,7 @@ logoutUser params = do
          delSession k
          expireCookie "sid"
        Nothing -> return ()
-  seeOther (encUrl dest) $ toResponse "You have been logged out."
+  seeOther ("http://127.0.0.1:5001" ++ encUrl dest) $ toResponse "You have been logged out."
 
 registerUserForm :: Handler
 registerUserForm = registerForm >>=
@@ -428,7 +428,7 @@ loginUserHTTP :: Params -> Handler
 loginUserHTTP params = do
   base' <- getWikiBase
   let destination = pDestination params `orIfNull` (base' ++ "/")
-  seeOther (encUrl destination) $ toResponse ()
+  seeOther ("http://127.0.0.1:5001" ++ encUrl destination) $ toResponse ()
 
 logoutUserHTTP :: Handler
 logoutUserHTTP = unauthorized $ toResponse ()  -- will this work?
@@ -460,7 +460,7 @@ oauthGithubCallback ghConfig githubCallbackPars =
                      key <- newSession (sessionData userEmail)
                      cfg <- getConfig
                      addCookie (MaxAge $ sessionTimeout cfg) (mkCookie "sid" (show key))
-                     seeOther (encUrl destination) $ toResponse ()
+                     seeOther ("http://127.0.0.1:5001" ++ encUrl destination) $ toResponse ()
           Left err -> do
               liftIO $ logM "gitit" WARNING $ "Login Failed: " ++ ghUserMessage err ++ maybe "" (". Github response" ++) (ghDetails err)
               cfg <- getConfig
@@ -468,7 +468,7 @@ oauthGithubCallback ghConfig githubCallbackPars =
                     | requireAuthentication cfg >= ForRead = base' ++ "/_loginFailure"
                     | otherwise                            = destination
               let url = destination' ++ "?message=" ++ ghUserMessage err
-              seeOther (encUrl url) $ toResponse ()
+              seeOther ("http://127.0.0.1:5001" ++ encUrl url) $ toResponse ()
 
 githubAuthHandlers :: GithubConfig
                    -> [Handler]
@@ -528,7 +528,7 @@ loginRPXUser params = do
        see $ fromJust $ rDestination params
       where
         prop pname info = lookup pname $ R.userData info
-        see url = seeOther (encUrl url) $ toResponse noHtml
+        see url = seeOther ("http://127.0.0.1:5001" ++ encUrl url) $ toResponse noHtml
 
 -- The parameters passed by the RPX callback call.
 data RPars = RPars { rToken       :: Maybe String

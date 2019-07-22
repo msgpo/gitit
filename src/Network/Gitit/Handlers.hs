@@ -120,14 +120,14 @@ randomPage = do
        secs <- liftIO (fmap utctDayTime getCurrentTime)
        let newPage = pages !!
                      (truncate (secs * 1000000) `mod` length pages)
-       seeOther (base' ++ urlForPage newPage) $ toResponse $
+       seeOther ("http://127.0.0.1:5001" ++ base' ++ urlForPage newPage) $ toResponse $
          p << "Redirecting to a random page"
 
 discussPage :: Handler
 discussPage = do
   page <- getPage
   base' <- getWikiBase
-  seeOther (base' ++ urlForPage (if isDiscussPage page then page else ('@':page))) $
+  seeOther ("http://127.0.0.1:5001" ++ base' ++ urlForPage (if isDiscussPage page then page else ('@':page))) $
                      toResponse "Redirecting to discussion page"
 
 createPage :: Handler
@@ -254,13 +254,13 @@ goToPage = withData $ \(params :: Params) -> do
   let prefixMatch f = (map toLower gotopage) `isPrefixOf` (map toLower f)
   base' <- getWikiBase
   case findPage exactMatch of
-       Just m  -> seeOther (base' ++ urlForPage m) $ toResponse
+       Just m  -> seeOther ("http://127.0.0.1:5001" ++ base' ++ urlForPage m) $ toResponse
                      "Redirecting to exact match"
        Nothing -> case findPage insensitiveMatch of
-                       Just m  -> seeOther (base' ++ urlForPage m) $ toResponse
+                       Just m  -> seeOther ("http://127.0.0.1:5001" ++ base' ++ urlForPage m) $ toResponse
                                     "Redirecting to case-insensitive match"
                        Nothing -> case findPage prefixMatch of
-                                       Just m  -> seeOther (base' ++ urlForPage m) $
+                                       Just m  -> seeOther ("http://127.0.0.1:5001" ++ base' ++ urlForPage m) $
                                                   toResponse $ "Redirecting" ++
                                                     " to partial match"
                                        Nothing -> searchResults
@@ -613,8 +613,8 @@ deletePage = withData $ \(params :: Params) -> do
      then do
        fs <- getFileStore
        liftIO $ Data.FileStore.delete fs file author descrip
-       seeOther (base' ++ "/") $ toResponse $ p << "File deleted"
-     else seeOther (base' ++ urlForPage page) $ toResponse $ p << "Not deleted"
+       seeOther ("http://127.0.0.1:5001" ++ base' ++ "/") $ toResponse $ p << "File deleted"
+     else seeOther ("http://127.0.0.1:5001" ++ base' ++ urlForPage page) $ toResponse $ p << "Not deleted"
 
 updatePage :: Handler
 updatePage = withData $ \(params :: Params) -> do
@@ -650,7 +650,7 @@ updatePage = withData $ \(params :: Params) -> do
                                                then return (Right ())
                                                else E.throwIO e)
        case modifyRes of
-            Right () -> seeOther (base' ++ urlForPage page) $ toResponse $ p << "Page updated"
+            Right () -> seeOther ("http://127.0.0.1:5001" ++ base' ++ urlForPage page) $ toResponse $ p << "Page updated"
             Left (MergeInfo mergedWithRev conflicts mergedText) -> do
                let mergeMsg = "The page has been edited since you checked it out. " ++
                       "Changes from revision " ++ revId mergedWithRev ++
